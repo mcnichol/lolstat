@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./model"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -45,27 +46,6 @@ func devlog(data string) () {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-type Summoner struct {
-	Id            string `json:"id"`
-	AccountId     string `json:"accountId"`
-	Puuid         string `json:"puuid"`
-	Name          string `json:"name"`
-	ProfileIconId uint16 `json:"profileIconId"`
-	RevisionDate  uint64 `json:"revisionDate"`
-	Level         uint8  `json:"summonerLevel"`
-}
-
-func (s Summoner) ToString() string {
-	return fmt.Sprintf(
-		"Summoner Info:\n\n"+
-			"%15v:%50s\n"+
-			"%15v:%50d\n"+
-			"%15v:%50v\n"+
-			"%15v:%50v\n",
-
-		"Name", s.Name, "Level", s.Level, "Account ID", s.AccountId, "Summoner ID", s.Id)
 }
 
 func main() {
@@ -115,7 +95,7 @@ func main() {
 		body, err := ioutil.ReadAll(resp.Body)
 		decoded := json.NewDecoder(bytes.NewReader(body))
 
-		var s1 Summoner
+		var s1 model.Summoner
 		for {
 			if err := decoded.Decode(&s1); err == io.EOF {
 				break
@@ -126,9 +106,11 @@ func main() {
 			}
 		}
 
+		response := getRequest("https://na1.api.riotgames.com/lol/match/v4/timelines/by-match/3347123870?api_key=RGAPI-f06f4a32-71e4-4735-8370-7d8614027f80")
+
+		devlog(string(response))
 		devlog(string(body))
 		p1.Text = s1.ToString()
-
 
 		resp, err = http.Get(fmt.Sprintf("https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s?api_key=%s", summoners["august"], apiKey))
 		if err != nil {
@@ -139,7 +121,7 @@ func main() {
 		body, err = ioutil.ReadAll(resp.Body)
 		decoded = json.NewDecoder(bytes.NewReader(body))
 
-		var s2 Summoner
+		var s2 model.Summoner
 		for {
 			if err := decoded.Decode(&s2); err == io.EOF {
 				break
@@ -178,4 +160,21 @@ func main() {
 			draw()
 		}
 	}
+
+}
+
+func getRequest(url string) []byte {
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return body
 }
