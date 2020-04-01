@@ -13,12 +13,10 @@ type Summoner struct {
 }
 
 func (s Summoner) ToString() string {
-	return fmt.Sprintf(
-		"Summoner Info:\n\n"+
-			"%15v:%50s\n"+
-			"%15v:%50d\n"+
-			"%15v:%50v\n"+
-			"%15v:%50v\n",
+	return fmt.Sprintf("SummonerID:%s,AccountID:%s,Name:%s", s.Id, s.AccountId, s.Name)
+}
 
-		"Name", s.Name, "Level", s.Level, "Account ID", s.AccountId, "Summoner ID", s.Id)
+func (s Summoner) ToJSON() string {
+	return fmt.Sprintf("{\"accountId\":\"%s\", \"id\":\"%s\", \"level\": \"%d\", \"name\":\"%s\", \"puuid\":\"%s\"}",
+		s.AccountId, s.Id, s.Level, s.Name, s.Puuid)
 }
